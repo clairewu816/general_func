@@ -116,3 +116,7 @@ def map_states_dots(states_df, dots_df, title):
         ),
     )
     return Figure(data=data, layout=layout)
+
+
+def test():
+    pass
