@@ -1,5 +1,7 @@
 import plotly.plotly as py
 from plotly.graph_objs import *
+import matplotlib.pyplot as plt
+import pandas as pd
 
 
 def map_two_sources(df, title):
@@ -118,5 +120,68 @@ def map_states_dots(states_df, dots_df, title):
     return Figure(data=data, layout=layout)
 
 
-def test():
-    pass
+def plot_timeline(ax, y0, y1, md, c='grey'):
+    """
+    Plot vertical time lines
+    :param y0: start year
+    :param y1: end year, not included
+    :param md: e.g. '06-01'
+    :param c: color
+    """
+    xpos = [pd.to_datetime(str(x) + '-' + md) for x in range(y0, y1)]
+    for i in xpos:
+        ax.axvline(i, color=c)
+
+
+def plot_subplots(y1, y2, y3, titles):
+    """
+    Plot subplots with prices and temperature
+    if only one price, leave y2 as ''
+    titles=[y1_label, y2_label, plot_title]
+    :return:
+    """
+    ylabels = ['price', 'temperature']
+    f, axes = plt.subplots(2, 1, figsize=(17, 8))
+
+    plot_timeline(axes[0], 2011, 2017, '03-01', 'black')
+    plot_timeline(axes[0], 2011, 2017, '06-01')
+    axes[0].plot(y1, 'b', label=titles[0])
+    if isinstance(y2, pd.Series):
+        axes[0].plot(y2, 'g', label=titles[1])
+    axes[0].set_ylabel(ylabels[0])
+    axes[0].set_title(titles[2])
+    axes[0].legend(loc='upper left')
+    axes[0].grid(True)
+
+    plot_timeline(axes[1], 2011, 2017, '03-01', 'black')
+    plot_timeline(axes[1], 2011, 2017, '06-01')
+    axes[1].plot(y3, 'r')
+    axes[1].set_ylabel(ylabels[1])
+    plt.grid(True)
+
+
+def plot_subplots2(y1, y2, y3, ylabels, title):
+    """
+    Comprehensive version of plot_subplots() by adding a second axis in the first subplot
+    """
+    f, axes = plt.subplots(2, 1, figsize=(17, 8))
+
+    plot_timeline(axes[0], 2011, 2017, '03-01', 'black')
+    plot_timeline(axes[0], 2011, 2017, '06-01')
+    axes[0].plot(y1, 'b', label=ylabels[0])
+    axes[0].set_ylabel(ylabels[0], color='b')
+    axes[0].tick_params('y', colors='b')
+
+    ax2 = axes[0].twinx()
+    ax2.plot(y2, 'g', label=ylabels[1])
+    ax2.set_ylabel(ylabels[1], color='g')
+    ax2.tick_params('y', colors='g')
+
+    axes[0].set_title(title)
+    axes[0].grid(True)
+
+    plot_timeline(axes[1], 2011, 2017, '03-01', 'black')
+    plot_timeline(axes[1], 2011, 2017, '06-01')
+    axes[1].plot(y3, 'r')
+    axes[1].set_ylabel(ylabels[2])
+    axes[1].grid(True)
