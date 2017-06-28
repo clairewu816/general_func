@@ -185,3 +185,21 @@ def plot_subplots2(y1, y2, y3, ylabels, title):
     axes[1].plot(y3, 'r')
     axes[1].set_ylabel(ylabels[2])
     axes[1].grid(True)
+
+
+def plot_hist_line_charts_together(hist_df, hist_axises, line_df, line_axises, ts_flag=False):
+    """
+    Plot hist and line charts together
+    :param hist_df:
+    :param hist_axises: [x_axis, y_axis]
+    :param line_df:
+    :param line_axises: [x_axis, y_axis]
+    :param ts_flag: if those are time series
+    """
+    hist_x_axis, hist_y_axis = hist_axises
+    line_x_axis, line_y_axis = line_axises
+    if ts_flag:
+        hist_df[hist_x_axis] = hist_df[hist_x_axis].astype(str)
+        line_df[line_x_axis] = line_df[line_x_axis].astype(str)
+    ax = line_df.plot(x=line_x_axis, y=line_y_axis, linestyle='-', marker='o')
+    hist_df.plot(x=hist_x_axis, y=hist_y_axis, kind='bar', ax=ax)
