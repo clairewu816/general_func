@@ -1,6 +1,7 @@
 import plotly.plotly as py
 from plotly.graph_objs import *
 import matplotlib.pyplot as plt
+# %matplotlib inline
 import pandas as pd
 
 
@@ -187,19 +188,28 @@ def plot_subplots2(y1, y2, y3, ylabels, title):
     axes[1].grid(True)
 
 
-def plot_hist_line_charts_together(hist_df, hist_axises, line_df, line_axises, ts_flag=False):
+def combo_plot_example():
     """
-    Plot hist and line charts together
-    :param hist_df:
-    :param hist_axises: [x_axis, y_axis]
-    :param line_df:
-    :param line_axises: [x_axis, y_axis]
-    :param ts_flag: if those are time series
+    Illustrate several use cases:
+        1. plot bar charts and line charts together
+        2. different axis
+        3. stacking
     """
-    hist_x_axis, hist_y_axis = hist_axises
-    line_x_axis, line_y_axis = line_axises
-    if ts_flag:
-        hist_df[hist_x_axis] = hist_df[hist_x_axis].astype(str)
-        line_df[line_x_axis] = line_df[line_x_axis].astype(str)
-    ax = line_df.plot(x=line_x_axis, y=line_y_axis, linestyle='-', marker='o')
-    hist_df.plot(x=hist_x_axis, y=hist_y_axis, kind='bar', ax=ax)
+    fig = plt.figure()
+    ax1 = fig.add_subplot(111) # initialize two axises
+    ax2 = ax1.twinx()
+
+    # the ax keyword sets the axis that the data frame plots to
+    call_count_by_hour['hour'] = call_count_by_hour['hour'].astype(str) # make x labels as string to correctly combine two graphs
+    call_count_by_hour.plot(ax=ax2, y='call_count', x='hour',linestyle='-', marker='o')
+    booked_count.plot(ax=ax1, color='r',kind='bar', label='booked_count')
+    bid_only_count.plot(ax=ax1, color='b', bottom=booked_count.values, kind='bar', label='bid_count') # stacking
+    call_count['t'] = 0 # add a baseline (horizontal line)
+    call_count.plot(ax=ax2, x='hour', y='t', color='grey', linestyle=':',label='_nolegend_') # only show some of legends
+    ax1.legend(loc='upper left')
+    ax2.legend(loc='upper right')
+
+    plt.title('Book and bid volume V.S. call volume by hour')
+    ax1.set_xlabel('Response hour locally')
+    ax1.set_xticklabels(['x_val1', 'x_val2', 'x_val3']) # customize values of x axis
+    
