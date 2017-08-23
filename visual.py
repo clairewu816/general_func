@@ -213,3 +213,15 @@ def combo_plot_example():
     ax1.set_xlabel('Response hour locally')
     ax1.set_xticklabels(['x_val1', 'x_val2', 'x_val3']) # customize values of x axis
     
+    
+def plot_ma(df, x_col, y_col, N):
+    """Use Moving Average over <x_col> to calculate <y_col>"""
+    df = df.sort_values(x_col)
+    df['interest_rate'] = pd.rolling_mean(df[y_col], N, center=True)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_xlabel(x_col)
+    ax.set_ylabel("interested rate")
+    sns.regplot(df[x_col], df['interest_rate'], lowess=True, marker="+")
+    plt.title('moving average interested rate on ' + x_col)
