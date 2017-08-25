@@ -3,6 +3,7 @@ from plotly.graph_objs import *
 import matplotlib.pyplot as plt
 # %matplotlib inline
 import pandas as pd
+import seaborn as sns
 
 
 def map_two_sources(df, title):
