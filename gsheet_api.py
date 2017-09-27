@@ -2,7 +2,7 @@ from __future__ import print_function
 import httplib2
 import os
 import time
-
+import shutil
 from apiclient import discovery, errors
 from oauth2client.file import Storage
 
@@ -15,12 +15,17 @@ class Gsheet(object):
     def __init__(self):
         self.credentials = self.get_credentials()
         self.service = self.build_service()
-
+        
     def get_credentials(self):
-        credential_path = 'client_secret.json'
+        """
+        Copy json file to tmp so that it can be re-writable
+        """
+        shutil.copy2('client_secret.json', '/tmp')
+        credential_path = '/tmp/truck-availability-googleapis.json'
 
         store = Storage(credential_path)
-        return store.get()
+        credentials = store.get()
+        return credentials
 
     def build_service(self):
         http = self.credentials.authorize(httplib2.Http())
@@ -70,7 +75,7 @@ class Gsheet(object):
                 body=body).execute()
         return
 
-    def duplicate_sheet(spreadsheetId, new_sheet_name):
+    def duplicate_sheet(self, spreadsheetId, new_sheet_name):
         """Duplicate last business day's sheet (aka the very first sheet) as the sheet for today"""
 
         # get latest sheet id
@@ -93,7 +98,7 @@ class Gsheet(object):
         response = request.execute()
         return
     
-    def clean_sheet(spreadsheetId, end_column_index):
+    def clean_sheet(self, spreadsheetId, end_column_index):
         """
         Clean values in the range of A2:end_column of sheetId 0 while keep format.
         :param end_column_index: zero index
