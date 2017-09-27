@@ -69,3 +69,51 @@ class Gsheet(object):
                 valueInputOption='USER_ENTERED', spreadsheetId=spreadsheetId, range=rangeName,
                 body=body).execute()
         return
+
+    def duplicate_sheet(spreadsheetId, new_sheet_name):
+        """Duplicate last business day's sheet (aka the very first sheet) as the sheet for today"""
+
+        # get latest sheet id
+        sheets = self.service.spreadsheets().get(spreadsheetId=spreadsheetId).execute()['sheets']
+        latest_sheet_id = sheets[0]['properties']['sheetId']
+
+        # duplicate sheet
+        request_body = {
+            "requests": [
+                {
+                    "duplicateSheet": {
+                        "sourceSheetId": latest_sheet_id, 
+                        "insertSheetIndex": 0, 
+                        "newSheetName": new_sheet_name
+                    }
+                }
+            ]
+        }
+        request = self.service.spreadsheets().batchUpdate(spreadsheetId=spreadsheetId, body=request_body)
+        response = request.execute()
+        return
+    
+    def clean_sheet(spreadsheetId, end_column_index):
+        """
+        Clean values in the range of A2:end_column of sheetId 0 while keep format.
+        :param end_column_index: zero index
+        """
+        request_body = {
+            "requests": [
+                {
+                    "updateCells": {
+                        "range": {
+                            "sheetId": 0,
+                            "startRowIndex": 1,
+                            "startColumnIndex": 0,
+                            "endColumnIndex": end_column_index - 1
+                        },
+                        "fields": "userEnteredValue"
+                    }
+                }
+            ]
+        }
+        request = self.service.spreadsheets().batchUpdate(spreadsheetId=spreadsheetId, body=request_body)
+        response = request.execute()
+        return
+    
