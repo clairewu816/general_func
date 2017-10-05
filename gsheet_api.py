@@ -75,12 +75,14 @@ class Gsheet(object):
                 body=body).execute()
         return
 
-    def duplicate_sheet(self, spreadsheetId, new_sheet_name):
-        """Duplicate last business day's sheet (aka the very first sheet) as the sheet for today"""
-
-        # get latest sheet id
+    def get_sheet_id(self, spreadsheetId, sheet_order):
+        """Get sheet_id by the order in the spreadsheet"""
         sheets = self.service.spreadsheets().get(spreadsheetId=spreadsheetId).execute()['sheets']
-        latest_sheet_id = sheets[0]['properties']['sheetId']
+        return sheets[sheet_order]['properties']['sheetId']
+    
+    def duplicate_sheet(self, spreadsheetId, new_sheet_name):
+        """Duplicate from the very first sheet and insert it into the very first"""
+        latest_sheet_id = self.get_sheet_id(spreadsheetId, 0)
 
         # duplicate sheet
         request_body = {
@@ -98,7 +100,7 @@ class Gsheet(object):
         response = request.execute()
         return
     
-    def clean_sheet(self, spreadsheetId, end_column_index):
+    def clean_sheet(self, spreadsheetId, sheet_id, end_column_index):
         """
         Clean values in the range of A2:end_column of sheetId 0 while keep format.
         :param end_column_index: zero index
@@ -111,7 +113,7 @@ class Gsheet(object):
                             "sheetId": 0,
                             "startRowIndex": 1,
                             "startColumnIndex": 0,
-                            "endColumnIndex": end_column_index - 1
+                            "endColumnIndex": end_column_index
                         },
                         "fields": "userEnteredValue"
                     }
@@ -121,4 +123,3 @@ class Gsheet(object):
         request = self.service.spreadsheets().batchUpdate(spreadsheetId=spreadsheetId, body=request_body)
         response = request.execute()
         return
-    
